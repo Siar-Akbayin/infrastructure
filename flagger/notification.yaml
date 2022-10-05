@@ -1,0 +1,11 @@
+apiVersion: flagger.app/v1beta1
+kind: AlertProvider
+metadata:
+  name: on-call
+  namespace: flux-system
+spec:
+  type: discord
+  channel: flagger-bot
+  username: flagger-bot
+  secretRef:
+    name: discord-flagger-webhook
