@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: sock-shop
+  labels:
+    app: frontend
+spec:
+  progressDeadlineSeconds: 180
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: europe-west3-docker.pkg.dev/cnpe-blue/sockshop/front-end:1.0.4 # {"$imagepolicy": "flux-system:frontend"}
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1000Mi
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          ports:
+            - containerPort: 8079
+              name: http
+              protocol: TCP
+          env:
+            - name: SESSION_REDIS
+              value: "true"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - all
+            readOnlyRootFilesystem: true
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8079
+            initialDelaySeconds: 300
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8079
+            initialDelaySeconds: 60
+            periodSeconds: 3
+      nodeSelector:
+        beta.kubernetes.io/os: linux
