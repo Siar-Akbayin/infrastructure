@@ -11,6 +11,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: infrastructure
-  path: ./apps
+  path: ./microservices
   prune: true
   validation: client
